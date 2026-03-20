@@ -1,13 +1,7 @@
 import asyncio
-import os
 from dotenv import load_dotenv
 
-# Load environment variables FIRST
 load_dotenv()
-
-# Ensure AWS credentials are set
-if not os.getenv('AWS_DEFAULT_REGION'):
-    os.environ['AWS_DEFAULT_REGION'] = 'us-east-1'
 
 from langchain_core.messages import HumanMessage
 from graph.graph import graph

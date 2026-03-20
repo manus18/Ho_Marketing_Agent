@@ -1,7 +1,6 @@
-from typing import Annotated, Sequence
-from langgraph.graph.message import MessagesState
-
-# Use MessageState directly or create a simple state dict
-AgentState = MessagesState
+from langgraph.graph import MessagesState
 
 
+class AgentState(MessagesState):
+    """Agent state extends MessagesState with messages list using add_messages reducer."""
+    pass

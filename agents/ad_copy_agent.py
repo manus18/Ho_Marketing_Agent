@@ -1,8 +1,19 @@
+import os
 from langchain_aws import ChatBedrock
 from langchain_core.messages import HumanMessage
 from langchain_core.tools import tool
 
-_llm = ChatBedrock(model="global.anthropic.claude-haiku-4-5-20251001-v1:0")
+_llm = None
+
+def get_llm():
+    """Lazy load ChatBedrock with AWS credentials."""
+    global _llm
+    if _llm is None:
+        _llm = ChatBedrock(
+            model="global.anthropic.claude-haiku-4-5-20251001-v1:0",
+            region_name=os.getenv("AWS_REGION", "us-east-1")
+        )
+    return _llm
 
 
 @tool
@@ -10,7 +21,8 @@ def create_ad_copy(business_name: str) -> str:
     """Generate ad copy for Google Ads and social media ads.
     Use this tool when the user asks for ad copy, advertising text,
     Google Ads, Facebook Ads, paid advertising, or PPC campaigns."""
-    response = _llm.invoke([
+    llm = get_llm()
+    response = llm.invoke([
         HumanMessage(content=(
             f"Create ad copy for the business below, covering multiple ad formats.\n\n"
             f"**Google Search Ads** (3 variations):\n"

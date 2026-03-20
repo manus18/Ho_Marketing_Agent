@@ -1,6 +1,7 @@
 import base64
 import json
 import logging
+import os
 import random
 import boto3
 from botocore.exceptions import ClientError
@@ -16,7 +17,7 @@ class ImageError(Exception):
 
 
 def _generate_image(body: str) -> bytes:
-    bedrock = boto3.client(service_name="bedrock-runtime", region_name="us-east-1")
+    bedrock = boto3.client(service_name="bedrock-runtime", region_name=os.getenv("AWS_REGION", "us-east-1"))
     response = bedrock.invoke_model(
         body=body,
         modelId="amazon.titan-image-generator-v2:0",

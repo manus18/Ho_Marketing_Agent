@@ -1,8 +1,19 @@
+import os
 from langchain_aws import ChatBedrock
 from langchain_core.messages import HumanMessage
 from langchain_core.tools import tool
 
-_llm = ChatBedrock(model="global.anthropic.claude-haiku-4-5-20251001-v1:0")
+_llm = None
+
+def get_llm():
+    """Lazy load ChatBedrock with AWS credentials."""
+    global _llm
+    if _llm is None:
+        _llm = ChatBedrock(
+            model="global.anthropic.claude-haiku-4-5-20251001-v1:0",
+            region_name=os.getenv("AWS_REGION", "us-east-1")
+        )
+    return _llm
 
 
 @tool
@@ -10,7 +21,8 @@ def get_domain_suggestions(business_name: str) -> str:
     """Generate 10 unique domain name suggestions for a business.
     Use this tool when the user asks for domain name ideas, URL suggestions,
     or anything related to choosing a web address for their business."""
-    response = _llm.invoke([
+    llm = get_llm()
+    response = llm.invoke([
         HumanMessage(content=(
             f"Generate 10 unique domain names based on the business name provided.\n\n"
             f"Requirements:\n"

@@ -1,8 +1,19 @@
+import os
 from langchain_aws import ChatBedrock
 from langchain_core.messages import HumanMessage
 from langchain_core.tools import tool
 
-_llm = ChatBedrock(model="global.anthropic.claude-haiku-4-5-20251001-v1:0")
+_llm = None
+
+def get_llm():
+    """Lazy load ChatBedrock with AWS credentials."""
+    global _llm
+    if _llm is None:
+        _llm = ChatBedrock(
+            model="global.anthropic.claude-haiku-4-5-20251001-v1:0",
+            region_name=os.getenv("AWS_REGION", "us-east-1")
+        )
+    return _llm
 
 
 @tool
@@ -16,7 +27,8 @@ def create_social_media_content(business_name: str, platform: str = "") -> str:
         if platform
         else "Create content for Instagram, LinkedIn, Twitter/X, and Facebook."
     )
-    response = _llm.invoke([
+    llm = get_llm()
+    response = llm.invoke([
         HumanMessage(content=(
             f"Create engaging social media content for the business below.\n\n"
             f"{platform_instruction}\n\n"
